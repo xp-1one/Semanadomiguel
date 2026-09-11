@@ -1,0 +1,365 @@
+<!-- Minha Semana — planner semanal minimalista para 2026 -->
+<style>
+  #minha-semana-root {
+    --page-bg: #eceeec;
+    --card-bg: #ffffff;
+    --ink: #3b3d3e;
+    --ink-soft: #8a8d8c;
+    --line: #e2e3e1;
+    --nav-bg: #4a4c4d;
+    --nav-bg-hover: #3a3c3d;
+
+    font-family: 'Work Sans', -apple-system, sans-serif;
+    color: var(--ink);
+    background: var(--page-bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+    box-sizing: border-box;
+  }
+  #minha-semana-root * { box-sizing: border-box; }
+
+  .ms-shell {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+    max-width: 980px;
+    min-width: 0;
+  }
+
+  .ms-navbtn {
+    background: var(--nav-bg);
+    border: none;
+    border-radius: 14px;
+    width: 40px;
+    flex-shrink: 0;
+    color: #f1f1ef;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .ms-navbtn:hover:not(:disabled) { background: var(--nav-bg-hover); }
+  .ms-navbtn:disabled { opacity: 0.35; cursor: default; }
+
+  .ms-card {
+    background: var(--card-bg);
+    border-radius: 22px;
+    padding: 30px 34px 24px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .ms-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    margin-bottom: 22px;
+    position: relative;
+  }
+  .ms-title {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 1.1;
+    color: var(--ink);
+    margin: 0;
+  }
+  .ms-chevron-wrap {
+    position: relative;
+    margin-top: 6px;
+  }
+  .ms-chevron {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-soft);
+    padding: 2px;
+    display: flex;
+  }
+  .ms-week-select {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .ms-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+    width: 100%;
+    min-width: 0;
+  }
+  .ms-col {
+    border-left: 1px solid var(--line);
+    padding: 0 14px;
+    display: flex;
+    flex-direction: column;
+    min-height: 260px;
+    min-width: 0;
+  }
+  .ms-col:first-child { border-left: none; padding-left: 2px; }
+  .ms-col:last-child { padding-right: 2px; }
+
+  .ms-day-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+  .ms-day-name.is-today { color: #b45b52; }
+  .ms-day-date {
+    font-size: 11px;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+
+  .ms-col textarea {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    resize: none;
+    outline: none;
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--ink);
+  }
+  .ms-col textarea::placeholder { color: #c7c9c7; }
+
+  .ms-status {
+    text-align: right;
+    font-size: 11px;
+    color: var(--ink-soft);
+    height: 14px;
+    margin-top: 8px;
+  }
+
+  @media (max-width: 780px) {
+    .ms-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 18px; }
+    .ms-col { border-left: none; min-height: 130px; padding: 0 6px; }
+    .ms-card { padding: 24px 18px 18px; }
+    .ms-title { font-size: 24px; }
+  }
+  @media (max-width: 460px) {
+    #minha-semana-root { padding: 20px 8px; }
+    .ms-shell { gap: 6px; }
+    .ms-navbtn { width: 30px; font-size: 16px; border-radius: 10px; }
+    .ms-card { padding: 18px 12px 14px; }
+    .ms-title { font-size: 20px; }
+    .ms-grid { grid-template-columns: minmax(0, 1fr); row-gap: 14px; }
+    .ms-col { min-height: 90px; padding: 0; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  }
+</style>
+
+<div id="minha-semana-root">
+  <div class="ms-shell">
+    <button class="ms-navbtn" id="ms-prev" title="Semana anterior">‹</button>
+
+    <div class="ms-card">
+      <div class="ms-header">
+        <h1 class="ms-title" id="ms-title">Semana nº — (2026)</h1>
+        <div class="ms-chevron-wrap">
+          <span class="ms-chevron">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <select class="ms-week-select" id="ms-week-select"></select>
+        </div>
+      </div>
+
+      <div class="ms-grid" id="ms-grid"></div>
+
+      <div class="ms-status" id="ms-status"></div>
+    </div>
+
+    <button class="ms-navbtn" id="ms-next" title="Próxima semana">›</button>
+  </div>
+</div>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCTBsOWX97uz3r729fx6yllSOzh7ruswPE",
+  authDomain: "semana-c8ced.firebaseapp.com",
+  projectId: "semana-c8ced",
+  storageBucket: "semana-c8ced.firebasestorage.app",
+  messagingSenderId: "914592670450",
+  appId: "1:914592670450:web:d97b551ede6fd780a0666b"
+};
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getFirestore(firebaseApp);
+
+(function () {
+  const DAY_NAMES = ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"];
+  const MONTHS = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  const MONTHS_FULL = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+  const YEAR = 2026;
+
+  function mondayOf(d) {
+    const date = new Date(d);
+    const day = date.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    date.setDate(date.getDate() + diff);
+    date.setHours(0,0,0,0);
+    return date;
+  }
+  function addDays(d, n) {
+    const r = new Date(d);
+    r.setDate(r.getDate() + n);
+    return r;
+  }
+  function isoDate(d) {
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0") + "-" + String(d.getDate()).padStart(2,"0");
+  }
+  function sameDay(a,b) {
+    return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+  }
+  function isoWeekNumber(monday) {
+    // ISO week number for the Thursday of this week
+    const thursday = addDays(monday, 3);
+    const jan1 = new Date(thursday.getFullYear(), 0, 1);
+    const diffDays = Math.floor((thursday - jan1) / 86400000);
+    return Math.ceil((diffDays + jan1.getDay() === 0 ? 7 : jan1.getDay() + diffDays + 1) / 7) || 1;
+  }
+  function weekNumberSimple(monday) {
+    const jan1 = new Date(YEAR, 0, 1);
+    const jan1Monday = mondayOf(jan1);
+    const diff = Math.round((monday - jan1Monday) / (7 * 86400000));
+    return diff + 1;
+  }
+
+  const minMonday = mondayOf(new Date(YEAR, 0, 1));
+  const maxMonday = mondayOf(new Date(YEAR, 11, 31));
+  const totalWeeks = Math.round((maxMonday - minMonday) / (7 * 86400000)) + 1;
+
+  let current = mondayOf(addDays(new Date(), 7));
+  if (current < minMonday) current = minMonday;
+  if (current > maxMonday) current = maxMonday;
+
+  const gridEl = document.getElementById("ms-grid");
+  const titleEl = document.getElementById("ms-title");
+  const statusEl = document.getElementById("ms-status");
+  const selectEl = document.getElementById("ms-week-select");
+  const prevBtn = document.getElementById("ms-prev");
+  const nextBtn = document.getElementById("ms-next");
+
+  // populate week dropdown
+  for (let i = 0; i < totalWeeks; i++) {
+    const m = addDays(minMonday, i * 7);
+    const opt = document.createElement("option");
+    opt.value = isoDate(m);
+    opt.textContent = "Semana nº " + (i + 1) + " — " + m.getDate() + " " + MONTHS[m.getMonth()];
+    selectEl.appendChild(opt);
+  }
+  selectEl.addEventListener("change", () => {
+    const parts = selectEl.value.split("-").map(Number);
+    current = new Date(parts[0], parts[1]-1, parts[2]);
+    render();
+  });
+
+  let flashTimer = null;
+  function flashStatus(text) {
+    statusEl.textContent = text;
+    clearTimeout(flashTimer);
+    flashTimer = setTimeout(() => { statusEl.textContent = ""; }, 1200);
+  }
+
+  function weekKey(monday) {
+    return isoDate(monday);
+  }
+
+  async function loadWeek(monday) {
+    try {
+      const ref = doc(db, "weeks", weekKey(monday));
+      const snap = await getDoc(ref);
+      return snap.exists() ? snap.data() : { days: {} };
+    } catch (e) {
+      flashStatus("não foi possível carregar");
+      return { days: {} };
+    }
+  }
+  async function saveWeek(monday, data) {
+    try {
+      const ref = doc(db, "weeks", weekKey(monday));
+      await setDoc(ref, data);
+      flashStatus("salvo");
+    } catch (e) {
+      flashStatus("não foi possível salvar");
+    }
+  }
+
+  async function render() {
+    const monday = current;
+    const wn = weekNumberSimple(monday);
+    const sunday = addDays(monday, 6);
+    const monthLabel = monday.getMonth() === sunday.getMonth()
+      ? MONTHS_FULL[monday.getMonth()]
+      : MONTHS[monday.getMonth()] + "/" + MONTHS[sunday.getMonth()];
+    titleEl.textContent = "Semana nº " + wn + " — " + monthLabel;
+    selectEl.value = isoDate(monday);
+
+    prevBtn.disabled = addDays(monday, -7) < minMonday;
+    nextBtn.disabled = addDays(monday, 7) > maxMonday;
+
+    const data = await loadWeek(monday);
+    gridEl.innerHTML = "";
+    const today = new Date();
+
+    for (let i = 0; i < 7; i++) {
+      const date = addDays(monday, i);
+      const key = isoDate(date);
+      const text = data.days[key] || "";
+
+      const col = document.createElement("div");
+      col.className = "ms-col";
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "ms-day-name" + (sameDay(date, today) ? " is-today" : "");
+      nameEl.textContent = DAY_NAMES[i];
+      col.appendChild(nameEl);
+
+      const dateEl = document.createElement("div");
+      dateEl.className = "ms-day-date";
+      dateEl.textContent = date.getDate() + " " + MONTHS[date.getMonth()];
+      col.appendChild(dateEl);
+
+      const ta = document.createElement("textarea");
+      ta.placeholder = "anotar...";
+      ta.value = text;
+      ta.addEventListener("input", () => {
+        data.days[key] = ta.value;
+        clearTimeout(ta._t);
+        ta._t = setTimeout(() => saveWeek(monday, data), 500);
+      });
+      col.appendChild(ta);
+
+      gridEl.appendChild(col);
+    }
+  }
+
+  prevBtn.addEventListener("click", () => {
+    const target = addDays(current, -7);
+    if (target >= minMonday) { current = target; render(); }
+  });
+  nextBtn.addEventListener("click", () => {
+    const target = addDays(current, 7);
+    if (target <= maxMonday) { current = target; render(); }
+  });
+
+  render();
+})();
+</script>
